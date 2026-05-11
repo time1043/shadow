@@ -55,6 +55,9 @@ export const wordTokensAtom = atom<Token[]>((get) =>
 
 export const wordStatesAtom = atom<WordState[]>([]);
 
+// Persisted word states per sentence index
+export const sentenceWordStatesMapAtom = atom<Map<number, WordState[]>>(new Map());
+
 export const focusedWordIndexAtom = atom(0);
 
 export const showTranslationAtom = atom(false);
@@ -192,43 +195,79 @@ export const setFocusedWordAtom = atom(null, (_get, set, index: number) => {
   set(focusedWordIndexAtom, index);
 });
 
-const saveCurrentResultAtom = atom(null, (get, set) => {
+// Save current sentence's word states and result before navigating away
+const saveSentenceProgressAtom = atom(null, (get, set) => {
   const states = get(wordStatesAtom);
   const idx = get(currentLineIndexAtom);
-  if (states.length === 0 || states.some((s) => s.status === 'empty')) return;
-  const allCorrect = states.every((s) => s.status === 'correct');
-  set(sentenceResultsAtom, (prev) => {
+  if (states.length === 0) return;
+
+  // Save word states
+  set(sentenceWordStatesMapAtom, (prev) => {
     const next = new Map(prev);
-    next.set(idx, allCorrect ? 'completed' : 'attempted');
+    next.set(idx, states);
     return next;
   });
+
+  // Save sentence result if all words are filled
+  if (states.every((s) => s.status !== 'empty')) {
+    const allCorrect = states.every((s) => s.status === 'correct');
+    set(sentenceResultsAtom, (prev) => {
+      const next = new Map(prev);
+      next.set(idx, allCorrect ? 'completed' : 'attempted');
+      return next;
+    });
+  }
+});
+
+// Navigate to a sentence index, restoring saved state if available
+const goToSentenceAtom = atom(null, (get, set, index: number) => {
+  set(currentLineIndexAtom, index);
+  const saved = get(sentenceWordStatesMapAtom).get(index);
+  if (saved) {
+    set(wordStatesAtom, saved);
+    // Focus first empty word, or last word if all filled
+    const firstEmpty = saved.findIndex((s) => s.status === 'empty');
+    set(focusedWordIndexAtom, firstEmpty !== -1 ? firstEmpty : saved.length - 1);
+  } else {
+    set(initializeWordStatesAtom);
+  }
 });
 
 export const nextSentenceAtom = atom(null, (get, set) => {
   const current = get(currentLineIndexAtom);
   if (current < echoLines.length - 1) {
-    set(saveCurrentResultAtom);
-    set(currentLineIndexAtom, current + 1);
-    set(initializeWordStatesAtom);
+    set(saveSentenceProgressAtom);
+    set(goToSentenceAtom, current + 1);
   }
 });
 
 export const previousSentenceAtom = atom(null, (get, set) => {
   const current = get(currentLineIndexAtom);
   if (current > 0) {
-    set(saveCurrentResultAtom);
-    set(currentLineIndexAtom, current - 1);
-    set(initializeWordStatesAtom);
+    set(saveSentenceProgressAtom);
+    set(goToSentenceAtom, current - 1);
   }
 });
 
 export const jumpToSentenceAtom = atom(null, (_get, set, index: number) => {
   if (index < 0 || index >= echoLines.length) return;
-  set(saveCurrentResultAtom);
-  set(currentLineIndexAtom, index);
-  set(initializeWordStatesAtom);
+  set(saveSentenceProgressAtom);
+  set(goToSentenceAtom, index);
 });
 
-export const retrySentenceAtom = atom(null, (_get, set) => {
+export const retrySentenceAtom = atom(null, (get, set) => {
+  const idx = get(currentLineIndexAtom);
+  // Clear saved word states for this sentence
+  set(sentenceWordStatesMapAtom, (prev) => {
+    const next = new Map(prev);
+    next.delete(idx);
+    return next;
+  });
+  // Clear sentence result
+  set(sentenceResultsAtom, (prev) => {
+    const next = new Map(prev);
+    next.delete(idx);
+    return next;
+  });
   set(initializeWordStatesAtom);
 });

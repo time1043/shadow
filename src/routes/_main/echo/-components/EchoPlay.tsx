@@ -59,10 +59,10 @@ export default function EchoPlay() {
 
   const { speak } = useSpeech();
 
-  // Initialize word states when line changes
+  // Initialize first sentence on mount
   useEffect(() => {
     initialize();
-  }, [initialize, lineIndex]);
+  }, []);
 
   // Auto-focus hidden input
   useEffect(() => {
