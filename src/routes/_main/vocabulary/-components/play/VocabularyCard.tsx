@@ -5,6 +5,7 @@ interface VocabularyCardProps {
   vocabulary: Vocabulary;
   status: ReviewStatus | null;
   swipeOffset?: { x: number; y: number };
+  onPronounce?: () => void;
 }
 
 const statusStyles: Record<ReviewStatus, string> = {
@@ -17,7 +18,12 @@ const statusStyles: Record<ReviewStatus, string> = {
  * Explanation and related words appear after the user marks the card.
  * Green border = known, red border = unknown.
  */
-export default function VocabularyCard({ vocabulary, status, swipeOffset }: VocabularyCardProps) {
+export default function VocabularyCard({
+  vocabulary,
+  status,
+  swipeOffset,
+  onPronounce,
+}: VocabularyCardProps) {
   const borderClass = status ? statusStyles[status] : 'border-gray-200';
   const wordColor =
     status === 'known' ? 'text-green-600' : status === 'unknown' ? 'text-red-600' : 'text-gray-900';
@@ -36,7 +42,13 @@ export default function VocabularyCard({ vocabulary, status, swipeOffset }: Voca
         #{vocabulary.sortOrder}
       </span>
       <div className="text-center">
-        <h1 className={`mb-4 text-3xl font-bold sm:mb-6 sm:text-4xl md:text-5xl ${wordColor}`}>
+        <h1
+          className={`mb-4 text-3xl font-bold sm:mb-6 sm:text-4xl md:text-5xl ${wordColor} cursor-pointer`}
+          onClick={(e) => {
+            e.stopPropagation();
+            onPronounce?.();
+          }}
+        >
           {vocabulary.content}
         </h1>
         {/* Show explanation only after marking */}

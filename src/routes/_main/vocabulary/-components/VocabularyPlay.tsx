@@ -1,14 +1,17 @@
 import { useNavigate } from '@tanstack/react-router';
-import { useAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import { useEffect, useRef, useState } from 'react';
 
 import type { ReviewStatus } from '@/types/ReviewStatus';
 
 import { vocabularies } from '../-mock/vocabulary';
+import { pronunciationEnabledAtom } from '../-store/pronunciationAtom';
 import { statusMapAtom } from '../-store/reviewAtom';
 import KeyboardHints from './play/KeyboardHints';
 import ProgressIndicator from './play/ProgressIndicator';
+import PronunciationToggle from './play/PronunciationToggle';
 import Stats from './play/Stats';
+import { useSpeech } from './play/useSpeech';
 import { useSwipeGesture } from './play/useSwipeGesture';
 import VocabularyCard from './play/VocabularyCard';
 
@@ -119,6 +122,16 @@ export default function VocabularyPlay() {
     };
   }, [current, currentIndex]);
 
+  // Auto-pronounce when word changes
+  const pronunciationEnabled = useAtomValue(pronunciationEnabledAtom);
+  const { speak } = useSpeech();
+
+  useEffect(() => {
+    if (pronunciationEnabled && current) {
+      speak(current.content);
+    }
+  }, [currentIndex, pronunciationEnabled]);
+
   const knownCount = [...statusMap.values()].filter((s) => s === 'known').length;
   const unknownCount = [...statusMap.values()].filter((s) => s === 'unknown').length;
 
@@ -127,9 +140,16 @@ export default function VocabularyPlay() {
       <ProgressIndicator {...{ vocabularies, currentIndex, statusMap }} onSelect={goTo} />
       <Stats {...{ knownCount, unknownCount, currentIndex }} total={vocabularies.length} />
 
+      <PronunciationToggle />
+
       {current && (
         <div {...{ onTouchStart, onTouchMove, onTouchEnd }} className="touch-none">
-          <VocabularyCard vocabulary={current} status={currentStatus} swipeOffset={offset} />
+          <VocabularyCard
+            vocabulary={current}
+            status={currentStatus}
+            swipeOffset={offset}
+            onPronounce={pronunciationEnabled ? () => speak(current.content) : undefined}
+          />
         </div>
       )}
 

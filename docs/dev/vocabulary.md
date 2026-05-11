@@ -30,6 +30,12 @@ Swipe mapping follows TikTok/Tinder conventions:
 - Vertical swipe is for navigation only, no marking
 - Axis locking: once past a 10px deadzone, movement is locked to the dominant axis to prevent diagonal ambiguity
 
+## Pronunciation
+
+- [x] Auto-pronounce word when it appears (using Web Speech API, lang: en)
+- [x] User can toggle pronunciation on/off
+- [x] Tap/click on the word text area to pronounce it (click area should be tight to the word, not the entire card)
+
 ## Record
 
 # UI Design
