@@ -23,7 +23,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Code Conventions
 
-- All code comments and documentation must be in English
+- But if the user speaks Chinese, reply in Chinese. But All code comments and documentation must be in English.
 - Route files follow TanStack Router file-based conventions with `-components/`, `-store/` directories as needed
 - Generic/utility hooks go in `src/hooks/`; module-specific business logic stays in route's `-components/`
 - Use `type` instead of `interface` for type definitions

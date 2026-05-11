@@ -13,6 +13,7 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as MainRouteImport } from './routes/_main'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as MainVocabularyIndexRouteImport } from './routes/_main/vocabulary/index'
+import { Route as MainEchoIndexRouteImport } from './routes/_main/echo/index'
 import { Route as MainVocabularySummaryRouteImport } from './routes/_main/vocabulary/summary'
 
 const AboutRoute = AboutRouteImport.update({
@@ -34,6 +35,11 @@ const MainVocabularyIndexRoute = MainVocabularyIndexRouteImport.update({
   path: '/vocabulary/',
   getParentRoute: () => MainRoute,
 } as any)
+const MainEchoIndexRoute = MainEchoIndexRouteImport.update({
+  id: '/echo/',
+  path: '/echo/',
+  getParentRoute: () => MainRoute,
+} as any)
 const MainVocabularySummaryRoute = MainVocabularySummaryRouteImport.update({
   id: '/vocabulary/summary',
   path: '/vocabulary/summary',
@@ -44,12 +50,14 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/vocabulary/summary': typeof MainVocabularySummaryRoute
+  '/echo/': typeof MainEchoIndexRoute
   '/vocabulary/': typeof MainVocabularyIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/vocabulary/summary': typeof MainVocabularySummaryRoute
+  '/echo': typeof MainEchoIndexRoute
   '/vocabulary': typeof MainVocabularyIndexRoute
 }
 export interface FileRoutesById {
@@ -58,19 +66,21 @@ export interface FileRoutesById {
   '/_main': typeof MainRouteWithChildren
   '/about': typeof AboutRoute
   '/_main/vocabulary/summary': typeof MainVocabularySummaryRoute
+  '/_main/echo/': typeof MainEchoIndexRoute
   '/_main/vocabulary/': typeof MainVocabularyIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/about' | '/vocabulary/summary' | '/vocabulary/'
+  fullPaths: '/' | '/about' | '/vocabulary/summary' | '/echo/' | '/vocabulary/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/vocabulary/summary' | '/vocabulary'
+  to: '/' | '/about' | '/vocabulary/summary' | '/echo' | '/vocabulary'
   id:
     | '__root__'
     | '/'
     | '/_main'
     | '/about'
     | '/_main/vocabulary/summary'
+    | '/_main/echo/'
     | '/_main/vocabulary/'
   fileRoutesById: FileRoutesById
 }
@@ -110,6 +120,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MainVocabularyIndexRouteImport
       parentRoute: typeof MainRoute
     }
+    '/_main/echo/': {
+      id: '/_main/echo/'
+      path: '/echo'
+      fullPath: '/echo/'
+      preLoaderRoute: typeof MainEchoIndexRouteImport
+      parentRoute: typeof MainRoute
+    }
     '/_main/vocabulary/summary': {
       id: '/_main/vocabulary/summary'
       path: '/vocabulary/summary'
@@ -122,11 +139,13 @@ declare module '@tanstack/react-router' {
 
 interface MainRouteChildren {
   MainVocabularySummaryRoute: typeof MainVocabularySummaryRoute
+  MainEchoIndexRoute: typeof MainEchoIndexRoute
   MainVocabularyIndexRoute: typeof MainVocabularyIndexRoute
 }
 
 const MainRouteChildren: MainRouteChildren = {
   MainVocabularySummaryRoute: MainVocabularySummaryRoute,
+  MainEchoIndexRoute: MainEchoIndexRoute,
   MainVocabularyIndexRoute: MainVocabularyIndexRoute,
 }
 
