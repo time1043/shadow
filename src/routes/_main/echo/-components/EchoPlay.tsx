@@ -6,24 +6,29 @@ import { useSpeech } from '@/hooks/useSpeech';
 import {
   currentLineAtom,
   currentLineIndexAtom,
-  correctCountAtom,
   deleteLastCharAtom,
   focusedWordIndexAtom,
   initializeWordStatesAtom,
-  isSentenceCompleteAtom,
+  jumpToSentenceAtom,
   moveFocusAtom,
   nextSentenceAtom,
   previousSentenceAtom,
   pronunciationEnabledAtom,
   retrySentenceAtom,
+  sentenceStatusesAtom,
   setFocusedWordAtom,
   showTranslationAtom,
   submitCurrentWordAtom,
   tokensAtom,
+  totalLinesAtom,
   totalWordsAtom,
   updateCurrentWordInputAtom,
   wordStatesAtom,
 } from '../-store/echo';
+import HintToggles from './play/HintToggles';
+import KeyboardHints from './play/KeyboardHints';
+import ProgressIndicator from './play/ProgressIndicator';
+import ProgressSlider from './play/ProgressSlider';
 import WordCell from './WordCell';
 
 export default function EchoPlay() {
@@ -33,15 +38,16 @@ export default function EchoPlay() {
   const tokens = useAtomValue(tokensAtom);
   const wordStates = useAtomValue(wordStatesAtom);
   const focusedIndex = useAtomValue(focusedWordIndexAtom);
-  const isComplete = useAtomValue(isSentenceCompleteAtom);
-  const correctCount = useAtomValue(correctCountAtom);
   const totalWords = useAtomValue(totalWordsAtom);
   const lineIndex = useAtomValue(currentLineIndexAtom);
+  const totalLines = useAtomValue(totalLinesAtom);
+  const sentenceStatuses = useAtomValue(sentenceStatusesAtom);
 
   const [showTranslation, setShowTranslation] = useAtom(showTranslationAtom);
-  const [pronunciationEnabled, setPronunciationEnabled] = useAtom(pronunciationEnabledAtom);
+  const pronunciationEnabled = useAtomValue(pronunciationEnabledAtom);
 
   const initialize = useSetAtom(initializeWordStatesAtom);
+  const jumpToSentence = useSetAtom(jumpToSentenceAtom);
   const submitWord = useSetAtom(submitCurrentWordAtom);
   const updateInput = useSetAtom(updateCurrentWordInputAtom);
   const deleteChar = useSetAtom(deleteLastCharAtom);
@@ -81,6 +87,11 @@ export default function EchoPlay() {
       if (e.key === 't' || e.key === 'T') {
         e.preventDefault();
         setShowTranslation((v) => !v);
+        return;
+      }
+      if (e.key === 'r' || e.key === 'R') {
+        e.preventDefault();
+        retrySentence();
         return;
       }
     }
@@ -128,19 +139,7 @@ export default function EchoPlay() {
     hiddenInputRef.current?.focus();
   };
 
-  const handleRetry = () => {
-    retrySentence();
-    hiddenInputRef.current?.focus();
-  };
-
-  const handleNext = () => {
-    nextSentence();
-    hiddenInputRef.current?.focus();
-  };
-
   if (!line) return null;
-
-  const hasNextSentence = lineIndex < 6 - 1; // mock data count
 
   // Build word index mapping for click handlers
   let wordIdx = 0;
@@ -161,29 +160,23 @@ export default function EchoPlay() {
         autoFocus
       />
 
+      {/* Progress slider for sentence navigation */}
+      <ProgressSlider total={totalLines} currentIndex={lineIndex} onJump={jumpToSentence} />
+      {/* Sentence progress indicator */}
+      <ProgressIndicator
+        statuses={sentenceStatuses}
+        currentIndex={lineIndex}
+        onSelect={(i) => {
+          jumpToSentence(i);
+          hiddenInputRef.current?.focus();
+        }}
+      />
+
       {/* Hint toggles */}
-      <div className="flex items-center gap-3">
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            setPronunciationEnabled((v) => !v);
-          }}
-          className="rounded-full p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-700"
-          title="Toggle pronunciation"
-        >
-          {pronunciationEnabled ? '🔊' : '🔇'}
-        </button>
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            setShowTranslation((v) => !v);
-          }}
-          className={`rounded-full px-3 py-1.5 text-sm ${showTranslation ? 'bg-blue-100 text-blue-700' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'}`}
-          title="Toggle Chinese translation"
-        >
-          译
-        </button>
-      </div>
+      <HintToggles
+        showTranslation={showTranslation}
+        onToggleTranslation={() => setShowTranslation((v) => !v)}
+      />
 
       {/* Chinese translation hint */}
       {showTranslation && (
@@ -219,41 +212,13 @@ export default function EchoPlay() {
         })}
       </div>
 
-      {/* Progress */}
+      {/* Progress text */}
       <p className="text-sm text-gray-400">
         Word {Math.min(focusedIndex + 1, totalWords)} / {totalWords}
       </p>
 
-      {/* Completion summary */}
-      {isComplete && (
-        <div className="flex flex-col items-center gap-4">
-          <p className="text-lg font-semibold">
-            {correctCount} / {totalWords} correct
-          </p>
-          <div className="flex gap-3">
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleRetry();
-              }}
-              className="rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-            >
-              Retry
-            </button>
-            {hasNextSentence && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleNext();
-                }}
-                className="rounded-lg bg-blue-500 px-4 py-2 text-sm text-white hover:bg-blue-600"
-              >
-                Next Sentence
-              </button>
-            )}
-          </div>
-        </div>
-      )}
+      {/* Keyboard hints */}
+      <KeyboardHints />
     </div>
   );
 }

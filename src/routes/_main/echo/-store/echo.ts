@@ -11,6 +11,7 @@ export type Token = {
   text: string;
   type: 'word' | 'punct';
 };
+export type SentenceStatus = 'current' | 'completed' | 'attempted' | 'not-started';
 
 // --- Helpers ---
 
@@ -37,6 +38,8 @@ export function tokenizeSentence(content: string): Token[] {
 
 export const currentLineIndexAtom = atom(0);
 
+export const totalLinesAtom = atom(echoLines.length);
+
 export const currentLineAtom = atom(
   (get) => echoLines[get(currentLineIndexAtom)],
 );
@@ -56,6 +59,19 @@ export const focusedWordIndexAtom = atom(0);
 
 export const showTranslationAtom = atom(false);
 export const pronunciationEnabledAtom = atom(true);
+
+// Sentence-level result tracking: index → 'completed' | 'attempted'
+export const sentenceResultsAtom = atom<Map<number, 'completed' | 'attempted'>>(new Map());
+
+export const sentenceStatusesAtom = atom<SentenceStatus[]>((get) => {
+  const total = echoLines.length;
+  const current = get(currentLineIndexAtom);
+  const results = get(sentenceResultsAtom);
+  return Array.from({ length: total }, (_, i) => {
+    if (i === current) return 'current';
+    return results.get(i) ?? 'not-started';
+  });
+});
 
 // --- Derived atoms ---
 
@@ -176,9 +192,22 @@ export const setFocusedWordAtom = atom(null, (_get, set, index: number) => {
   set(focusedWordIndexAtom, index);
 });
 
+const saveCurrentResultAtom = atom(null, (get, set) => {
+  const states = get(wordStatesAtom);
+  const idx = get(currentLineIndexAtom);
+  if (states.length === 0 || states.some((s) => s.status === 'empty')) return;
+  const allCorrect = states.every((s) => s.status === 'correct');
+  set(sentenceResultsAtom, (prev) => {
+    const next = new Map(prev);
+    next.set(idx, allCorrect ? 'completed' : 'attempted');
+    return next;
+  });
+});
+
 export const nextSentenceAtom = atom(null, (get, set) => {
   const current = get(currentLineIndexAtom);
   if (current < echoLines.length - 1) {
+    set(saveCurrentResultAtom);
     set(currentLineIndexAtom, current + 1);
     set(initializeWordStatesAtom);
   }
@@ -187,9 +216,17 @@ export const nextSentenceAtom = atom(null, (get, set) => {
 export const previousSentenceAtom = atom(null, (get, set) => {
   const current = get(currentLineIndexAtom);
   if (current > 0) {
+    set(saveCurrentResultAtom);
     set(currentLineIndexAtom, current - 1);
     set(initializeWordStatesAtom);
   }
+});
+
+export const jumpToSentenceAtom = atom(null, (_get, set, index: number) => {
+  if (index < 0 || index >= echoLines.length) return;
+  set(saveCurrentResultAtom);
+  set(currentLineIndexAtom, index);
+  set(initializeWordStatesAtom);
 });
 
 export const retrySentenceAtom = atom(null, (_get, set) => {
