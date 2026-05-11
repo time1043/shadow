@@ -24,7 +24,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Code Conventions
 
 - All code comments and documentation must be in English
-- Route files follow TanStack Router file-based conventions with `-components/`, `-types/`, `-mock/`, `-store/` directories as needed
+- Route files follow TanStack Router file-based conventions with `-components/`, `-mock/`, `-store/` directories as needed
+- Use `type` instead of `interface` for type definitions
+- Prefer regular functions over arrow functions (except for inline JSX handlers)
+- No `useMemo`, `useCallback`, or `React.memo` — React Compiler handles optimization
 
 ## Principles
 

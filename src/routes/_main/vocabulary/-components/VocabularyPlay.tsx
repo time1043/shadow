@@ -9,6 +9,7 @@ import { pronunciationEnabledAtom } from '../-store/pronunciationAtom';
 import { statusMapAtom } from '../-store/reviewAtom';
 import KeyboardHints from './play/KeyboardHints';
 import ProgressIndicator from './play/ProgressIndicator';
+import ProgressSlider from './play/ProgressSlider';
 import PronunciationToggle from './play/PronunciationToggle';
 import Stats from './play/Stats';
 import { useSpeech } from './play/useSpeech';
@@ -137,10 +138,13 @@ export default function VocabularyPlay() {
 
   return (
     <div className="flex min-h-[60vh] flex-col items-center justify-center gap-6 px-4 sm:gap-8">
+      <ProgressSlider total={vocabularies.length} {...{ currentIndex }} onJump={goTo} />
       <ProgressIndicator {...{ vocabularies, currentIndex, statusMap }} onSelect={goTo} />
-      <Stats {...{ knownCount, unknownCount, currentIndex }} total={vocabularies.length} />
 
-      <PronunciationToggle />
+      <div className="flex items-center justify-center gap-4">
+        <Stats {...{ knownCount, unknownCount, currentIndex }} total={vocabularies.length} />
+        <PronunciationToggle />
+      </div>
 
       {current && (
         <div {...{ onTouchStart, onTouchMove, onTouchEnd }} className="touch-none">

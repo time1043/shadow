@@ -1,12 +1,12 @@
 import type { ReviewStatus } from '@/types/ReviewStatus';
 import type { Vocabulary } from '@/types/Vocabulary';
 
-interface VocabularyCardProps {
+type VocabularyCardProps = {
   vocabulary: Vocabulary;
   status: ReviewStatus | null;
   swipeOffset?: { x: number; y: number };
   onPronounce?: () => void;
-}
+};
 
 const statusStyles: Record<ReviewStatus, string> = {
   known: 'border-green-500 bg-green-50 text-green-700',
