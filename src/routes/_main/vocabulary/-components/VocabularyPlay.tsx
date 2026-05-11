@@ -125,16 +125,15 @@ export default function VocabularyPlay() {
   return (
     <div className="flex min-h-[60vh] flex-col items-center justify-center gap-6 px-4 sm:gap-8">
       <ProgressIndicator {...{ vocabularies, currentIndex, statusMap }} onSelect={goTo} />
+      <Stats {...{ knownCount, unknownCount, currentIndex }} total={vocabularies.length} />
 
       {current && (
-        <div {...{ onTouchStart, onTouchMove, onTouchEnd }}>
+        <div {...{ onTouchStart, onTouchMove, onTouchEnd }} className="touch-none">
           <VocabularyCard vocabulary={current} status={currentStatus} swipeOffset={offset} />
         </div>
       )}
 
       <KeyboardHints />
-
-      <Stats {...{ knownCount, unknownCount, currentIndex }} total={vocabularies.length} />
     </div>
   );
 }

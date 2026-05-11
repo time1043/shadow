@@ -17,18 +17,12 @@ const statusStyles: Record<ReviewStatus, string> = {
  * Explanation and related words appear after the user marks the card.
  * Green border = known, red border = unknown.
  */
-export default function VocabularyCard({
-  vocabulary,
-  status,
-  swipeOffset,
-}: VocabularyCardProps) {
+export default function VocabularyCard({ vocabulary, status, swipeOffset }: VocabularyCardProps) {
   const borderClass = status ? statusStyles[status] : 'border-gray-200';
   const wordColor =
     status === 'known' ? 'text-green-600' : status === 'unknown' ? 'text-red-600' : 'text-gray-900';
 
-  const transform = swipeOffset
-    ? `translate(${swipeOffset.x}px, ${swipeOffset.y}px)`
-    : undefined;
+  const transform = swipeOffset ? `translate(${swipeOffset.x}px, ${swipeOffset.y}px)` : undefined;
 
   return (
     <div
