@@ -4,6 +4,7 @@ import type { Vocabulary } from '@/types/Vocabulary';
 interface VocabularyCardProps {
   vocabulary: Vocabulary;
   status: ReviewStatus | null;
+  swipeOffset?: { x: number; y: number };
 }
 
 const statusStyles: Record<ReviewStatus, string> = {
@@ -16,14 +17,26 @@ const statusStyles: Record<ReviewStatus, string> = {
  * Explanation and related words appear after the user marks the card.
  * Green border = known, red border = unknown.
  */
-export default function VocabularyCard({ vocabulary, status }: VocabularyCardProps) {
+export default function VocabularyCard({
+  vocabulary,
+  status,
+  swipeOffset,
+}: VocabularyCardProps) {
   const borderClass = status ? statusStyles[status] : 'border-gray-200';
   const wordColor =
     status === 'known' ? 'text-green-600' : status === 'unknown' ? 'text-red-600' : 'text-gray-900';
 
+  const transform = swipeOffset
+    ? `translate(${swipeOffset.x}px, ${swipeOffset.y}px)`
+    : undefined;
+
   return (
     <div
-      className={`relative min-h-48 w-full max-w-sm rounded-2xl border-2 p-6 shadow-lg transition-all duration-300 sm:min-h-56 sm:max-w-md sm:p-8 md:min-h-64 md:max-w-lg md:p-10 lg:max-w-xl ${borderClass}`}
+      className={`relative h-64 w-72 rounded-2xl border-2 p-6 shadow-lg sm:h-72 sm:w-80 sm:p-8 md:h-80 md:w-96 md:p-10 lg:w-md ${borderClass}`}
+      style={{
+        transform,
+        transition: swipeOffset ? 'none' : 'transform 0.3s ease-out',
+      }}
     >
       <span className="absolute top-3 left-4 text-xs text-gray-400 sm:top-4 sm:left-5">
         #{vocabulary.sortOrder}

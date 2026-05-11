@@ -13,9 +13,47 @@
 
 - [x] After all words reviewed, navigate to summary page showing known/unknown lists
 
-## Review Vocabulary via
+## Review Vocabulary via Touch Gestures
+
+- [x] Touch gesture support for mobile
+
+Swipe mapping follows TikTok/Tinder conventions:
+
+| Gesture     | Action                           | Keyboard Equivalent |
+| ----------- | -------------------------------- | ------------------- |
+| Swipe up    | Next word                        | ArrowDown           |
+| Swipe down  | Previous word                    | ArrowUp             |
+| Swipe left  | Mark as unknown (red, stay)      | ArrowLeft           |
+| Swipe right | Mark as known (green, auto-next) | ArrowRight          |
+
+- Card should animate out in the swipe direction (left/right)
+- Vertical swipe is for navigation only, no marking
+- Axis locking: once past a 10px deadzone, movement is locked to the dominant axis to prevent diagonal ambiguity
 
 ## Record
+
+# UI Design
+
+## Card
+
+Fixed dimensions at each breakpoint, content overflow is clipped.
+
+| Breakpoint | Width | Height |
+| ---------- | ----- | ------ |
+| base       | 288px | 256px  |
+| sm         | 320px | 288px  |
+| md         | 384px | 320px  |
+| lg         | 448px | 320px  |
+
+- Shows `#sortOrder` in top-left corner
+- Only shows English word by default; explanation appears after marking
+- Green border = known, red border = unknown, gray = unmarked
+
+## Progress Indicator
+
+- Shows up to 9 dots centered on current word
+- Dots beyond the window are replaced with `…` ellipsis (clickable to jump)
+- Dot colors: blue (current), green (known), red (unknown), gray (unmarked)
 
 # Database Design (Planned)
 

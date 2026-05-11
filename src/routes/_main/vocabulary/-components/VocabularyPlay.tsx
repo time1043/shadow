@@ -9,6 +9,7 @@ import { statusMapAtom } from '../-store/reviewAtom';
 import KeyboardHints from './play/KeyboardHints';
 import ProgressIndicator from './play/ProgressIndicator';
 import Stats from './play/Stats';
+import { useSwipeGesture } from './play/useSwipeGesture';
 import VocabularyCard from './play/VocabularyCard';
 
 export default function VocabularyPlay() {
@@ -40,6 +41,45 @@ export default function VocabularyPlay() {
     setCurrentIndex(index);
   };
 
+  // Swipe left: mark as unknown
+  const handleSwipeLeft = () => {
+    if (!current) return;
+    clearAutoAdvance();
+    setStatusMap((prev) => {
+      const next = new Map(prev);
+      next.set(current.content, 'unknown');
+      checkNavigateToSummary(next);
+      return next;
+    });
+  };
+
+  // Swipe right: mark as known, auto-advance after 1s
+  const handleSwipeRight = () => {
+    if (!current) return;
+    clearAutoAdvance();
+    setStatusMap((prev) => {
+      const next = new Map(prev);
+      next.set(current.content, 'known');
+      return next;
+    });
+    autoAdvanceTimer.current = setTimeout(() => {
+      const nextIndex = currentIndex + 1;
+      if (nextIndex >= vocabularies.length) {
+        navigate({ to: '/vocabulary/summary' });
+      } else {
+        setCurrentIndex(nextIndex);
+      }
+    }, 1000);
+  };
+
+  const { offset, onTouchStart, onTouchMove, onTouchEnd } = useSwipeGesture({
+    onSwipeLeft: handleSwipeLeft,
+    onSwipeRight: handleSwipeRight,
+    onSwipeUp: () => goTo(currentIndex + 1),
+    onSwipeDown: () => goTo(currentIndex - 1),
+  });
+
+  // Keyboard handling
   function handleKeydown(e: KeyboardEvent) {
     if (!current) return;
 
@@ -47,32 +87,13 @@ export default function VocabularyPlay() {
       // Keydown Left: mark as unknown (red), stay on current card
       case 'ArrowLeft': {
         e.preventDefault();
-        clearAutoAdvance();
-        setStatusMap((prev) => {
-          const next = new Map(prev);
-          next.set(current.content, 'unknown');
-          checkNavigateToSummary(next);
-          return next;
-        });
+        handleSwipeLeft();
         break;
       }
       // Keydown Right: mark as known (green), auto-advance to next after 1s
       case 'ArrowRight': {
         e.preventDefault();
-        clearAutoAdvance();
-        setStatusMap((prev) => {
-          const next = new Map(prev);
-          next.set(current.content, 'known');
-          return next;
-        });
-        autoAdvanceTimer.current = setTimeout(() => {
-          const nextIndex = currentIndex + 1;
-          if (nextIndex >= vocabularies.length) {
-            navigate({ to: '/vocabulary/summary' });
-          } else {
-            setCurrentIndex(nextIndex);
-          }
-        }, 1000);
+        handleSwipeRight();
         break;
       }
       // Keydown Up: go to previous word
@@ -105,7 +126,11 @@ export default function VocabularyPlay() {
     <div className="flex min-h-[60vh] flex-col items-center justify-center gap-6 px-4 sm:gap-8">
       <ProgressIndicator {...{ vocabularies, currentIndex, statusMap }} onSelect={goTo} />
 
-      {current && <VocabularyCard vocabulary={current} status={currentStatus} />}
+      {current && (
+        <div {...{ onTouchStart, onTouchMove, onTouchEnd }}>
+          <VocabularyCard vocabulary={current} status={currentStatus} swipeOffset={offset} />
+        </div>
+      )}
 
       <KeyboardHints />
 

@@ -7,7 +7,6 @@ export const Route = createFileRoute('/_main')({
 function RouteComponent() {
   return (
     <>
-      _main
       <Outlet />
     </>
   );
