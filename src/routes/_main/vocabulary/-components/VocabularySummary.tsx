@@ -1,8 +1,8 @@
 import { useNavigate } from '@tanstack/react-router';
 import { useAtom } from 'jotai';
 
-import { vocabularies } from '../-mock/vocabulary';
 import { statusMapAtom } from '../-store/reviewAtom';
+import { vocabularies } from '../../../../mock/vocabulary';
 
 export default function VocabularySummary() {
   const navigate = useNavigate();

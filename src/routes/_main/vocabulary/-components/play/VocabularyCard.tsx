@@ -24,7 +24,7 @@ export default function VocabularyCard({
   swipeOffset,
   onPronounce,
 }: VocabularyCardProps) {
-  const borderClass = status ? statusStyles[status] : 'border-gray-200';
+  const borderClass = status ? statusStyles[status] : 'border-gray-200 bg-gray-50 text-gray-900';
   const wordColor =
     status === 'known' ? 'text-green-600' : status === 'unknown' ? 'text-red-600' : 'text-gray-900';
 
@@ -32,37 +32,35 @@ export default function VocabularyCard({
 
   return (
     <div
-      className={`relative h-64 w-72 rounded-2xl border-2 p-6 shadow-lg sm:h-72 sm:w-80 sm:p-8 md:h-80 md:w-96 md:p-10 lg:w-md ${borderClass}`}
+      className={`relative flex min-h-[50vh] w-[85vw] flex-1 flex-col items-center justify-between rounded-2xl border-2 p-8 shadow-lg sm:w-[80vw] sm:p-12 md:w-[70vw] md:p-16 lg:w-[50vw] ${borderClass}`}
       style={{
         transform,
         transition: swipeOffset ? 'none' : 'transform 0.3s ease-out',
       }}
     >
-      <span className="absolute top-3 left-4 text-xs text-gray-400 sm:top-4 sm:left-5">
+      <span className="absolute top-4 left-5 text-sm text-gray-400 sm:top-6 sm:left-6">
         #{vocabulary.sortOrder}
       </span>
-      <div className="text-center">
-        <h1
-          className={`mb-4 text-3xl font-bold sm:mb-6 sm:text-4xl md:text-5xl ${wordColor} cursor-pointer`}
-          onClick={(e) => {
-            e.stopPropagation();
-            onPronounce?.();
-          }}
-        >
-          {vocabulary.content}
-        </h1>
-        {/* Show explanation only after marking */}
-        {status && (
-          <>
-            <p className="mb-3 text-lg text-gray-600 sm:mb-4 sm:text-xl md:text-2xl">
-              {vocabulary.explain}
-            </p>
-            {vocabulary.more && (
-              <p className="text-sm text-gray-400 sm:text-base">{vocabulary.more}</p>
-            )}
-          </>
-        )}
-      </div>
+
+      <h1
+        className={`mt-8 text-4xl font-bold sm:mt-12 sm:text-5xl md:text-6xl lg:text-7xl ${wordColor} cursor-pointer`}
+        onClick={(e) => {
+          e.stopPropagation();
+          onPronounce?.();
+        }}
+      >
+        {vocabulary.content}
+      </h1>
+
+      {/* Show explanation only after marking */}
+      {status && (
+        <div className="mb-8 flex flex-col items-center gap-4 sm:mb-12 sm:gap-5">
+          <p className="text-xl text-gray-600 sm:text-2xl md:text-3xl">{vocabulary.explain}</p>
+          {vocabulary.more && (
+            <p className="text-base text-gray-400 sm:text-lg">{vocabulary.more}</p>
+          )}
+        </div>
+      )}
     </div>
   );
 }

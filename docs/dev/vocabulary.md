@@ -36,6 +36,8 @@ Swipe mapping follows TikTok/Tinder conventions:
 - [x] User can toggle pronunciation on/off
 - [x] Tap/click on the word text area to pronounce it (click area should be tight to the word, not the entire card)
 
+## Pagination
+
 ## Record
 
 # UI Design

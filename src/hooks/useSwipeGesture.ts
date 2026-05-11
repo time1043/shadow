@@ -1,19 +1,19 @@
 import { useRef, useState } from 'react';
 
-interface SwipeOffset {
+type SwipeOffset = {
   x: number;
   y: number;
-}
+};
 
 type Axis = 'horizontal' | 'vertical' | null;
 
-interface UseSwipeGestureOptions {
+type UseSwipeGestureOptions = {
   onSwipeLeft: () => void;
   onSwipeRight: () => void;
   onSwipeUp: () => void;
   onSwipeDown: () => void;
   threshold?: number;
-}
+};
 
 const LOCK_DEADZONE = 10;
 

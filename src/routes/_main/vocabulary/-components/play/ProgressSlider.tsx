@@ -6,7 +6,7 @@ type ProgressSliderProps = {
 
 export default function ProgressSlider({ total, currentIndex, onJump }: ProgressSliderProps) {
   return (
-    <div className="flex w-full max-w-xs items-center gap-2 sm:max-w-sm">
+    <div className="flex w-full items-center gap-2">
       <span className="w-8 text-right text-xs text-gray-400">{currentIndex + 1}</span>
       <input
         type="range"

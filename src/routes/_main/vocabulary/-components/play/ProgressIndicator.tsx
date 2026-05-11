@@ -1,12 +1,12 @@
 import type { ReviewStatus } from '@/types/ReviewStatus';
 import type { Vocabulary } from '@/types/Vocabulary';
 
-interface ProgressIndicatorProps {
+type ProgressIndicatorProps = {
   vocabularies: Vocabulary[];
   currentIndex: number;
   statusMap: Map<string, ReviewStatus>;
   onSelect: (index: number) => void;
-}
+};
 
 const WINDOW_SIZE = 9;
 

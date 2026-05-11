@@ -4,7 +4,10 @@ import { useEffect, useRef, useState } from 'react';
 
 import type { ReviewStatus } from '@/types/ReviewStatus';
 
-import { vocabularies } from '../-mock/vocabulary';
+import { useSpeech } from '@/hooks/useSpeech';
+import { useSwipeGesture } from '@/hooks/useSwipeGesture';
+import { vocabularies } from '@/mock/vocabulary';
+
 import { pronunciationEnabledAtom } from '../-store/pronunciationAtom';
 import { statusMapAtom } from '../-store/reviewAtom';
 import KeyboardHints from './play/KeyboardHints';
@@ -12,8 +15,6 @@ import ProgressIndicator from './play/ProgressIndicator';
 import ProgressSlider from './play/ProgressSlider';
 import PronunciationToggle from './play/PronunciationToggle';
 import Stats from './play/Stats';
-import { useSpeech } from './play/useSpeech';
-import { useSwipeGesture } from './play/useSwipeGesture';
 import VocabularyCard from './play/VocabularyCard';
 
 export default function VocabularyPlay() {
@@ -137,13 +138,14 @@ export default function VocabularyPlay() {
   const unknownCount = [...statusMap.values()].filter((s) => s === 'unknown').length;
 
   return (
-    <div className="flex min-h-[60vh] flex-col items-center justify-center gap-6 px-4 sm:gap-8">
-      <ProgressSlider total={vocabularies.length} {...{ currentIndex }} onJump={goTo} />
-      <ProgressIndicator {...{ vocabularies, currentIndex, statusMap }} onSelect={goTo} />
-
-      <div className="flex items-center justify-center gap-4">
-        <Stats {...{ knownCount, unknownCount, currentIndex }} total={vocabularies.length} />
-        <PronunciationToggle />
+    <div className="flex h-[90vh] w-full flex-col items-center justify-between py-4">
+      <div className="flex w-full flex-col items-center gap-3">
+        <ProgressSlider total={vocabularies.length} {...{ currentIndex }} onJump={goTo} />
+        <div className="flex items-center justify-center gap-4">
+          <ProgressIndicator {...{ vocabularies, currentIndex, statusMap }} onSelect={goTo} />
+          <Stats {...{ knownCount, unknownCount, currentIndex }} total={vocabularies.length} />
+          <PronunciationToggle />
+        </div>
       </div>
 
       {current && (

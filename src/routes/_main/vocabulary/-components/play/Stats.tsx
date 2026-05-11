@@ -1,9 +1,9 @@
-interface StatsProps {
+type StatsProps = {
   knownCount: number;
   unknownCount: number;
   currentIndex: number;
   total: number;
-}
+};
 
 export default function Stats({ knownCount, unknownCount, currentIndex, total }: StatsProps) {
   return (
