@@ -8,70 +8,135 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from './routes/__root';
-import { Route as AboutRouteImport } from './routes/about';
-import { Route as IndexRouteImport } from './routes/index';
+import { Route as rootRouteImport } from './routes/__root'
+import { Route as AboutRouteImport } from './routes/about'
+import { Route as MainRouteImport } from './routes/_main'
+import { Route as IndexRouteImport } from './routes/index'
+import { Route as MainVocabularyIndexRouteImport } from './routes/_main/vocabulary/index'
+import { Route as MainVocabularySummaryRouteImport } from './routes/_main/vocabulary/summary'
 
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
   path: '/about',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
+const MainRoute = MainRouteImport.update({
+  id: '/_main',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
+const MainVocabularyIndexRoute = MainVocabularyIndexRouteImport.update({
+  id: '/vocabulary/',
+  path: '/vocabulary/',
+  getParentRoute: () => MainRoute,
+} as any)
+const MainVocabularySummaryRoute = MainVocabularySummaryRouteImport.update({
+  id: '/vocabulary/summary',
+  path: '/vocabulary/summary',
+  getParentRoute: () => MainRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute;
-  '/about': typeof AboutRoute;
+  '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/vocabulary/summary': typeof MainVocabularySummaryRoute
+  '/vocabulary/': typeof MainVocabularyIndexRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute;
-  '/about': typeof AboutRoute;
+  '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/vocabulary/summary': typeof MainVocabularySummaryRoute
+  '/vocabulary': typeof MainVocabularyIndexRoute
 }
 export interface FileRoutesById {
-  __root__: typeof rootRouteImport;
-  '/': typeof IndexRoute;
-  '/about': typeof AboutRoute;
+  __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
+  '/_main': typeof MainRouteWithChildren
+  '/about': typeof AboutRoute
+  '/_main/vocabulary/summary': typeof MainVocabularySummaryRoute
+  '/_main/vocabulary/': typeof MainVocabularyIndexRoute
 }
 export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath;
-  fullPaths: '/' | '/about';
-  fileRoutesByTo: FileRoutesByTo;
-  to: '/' | '/about';
-  id: '__root__' | '/' | '/about';
-  fileRoutesById: FileRoutesById;
+  fileRoutesByFullPath: FileRoutesByFullPath
+  fullPaths: '/' | '/about' | '/vocabulary/summary' | '/vocabulary/'
+  fileRoutesByTo: FileRoutesByTo
+  to: '/' | '/about' | '/vocabulary/summary' | '/vocabulary'
+  id:
+    | '__root__'
+    | '/'
+    | '/_main'
+    | '/about'
+    | '/_main/vocabulary/summary'
+    | '/_main/vocabulary/'
+  fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute;
-  AboutRoute: typeof AboutRoute;
+  IndexRoute: typeof IndexRoute
+  MainRoute: typeof MainRouteWithChildren
+  AboutRoute: typeof AboutRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
     '/about': {
-      id: '/about';
-      path: '/about';
-      fullPath: '/about';
-      preLoaderRoute: typeof AboutRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_main': {
+      id: '/_main'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof MainRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
-      id: '/';
-      path: '/';
-      fullPath: '/';
-      preLoaderRoute: typeof IndexRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_main/vocabulary/': {
+      id: '/_main/vocabulary/'
+      path: '/vocabulary'
+      fullPath: '/vocabulary/'
+      preLoaderRoute: typeof MainVocabularyIndexRouteImport
+      parentRoute: typeof MainRoute
+    }
+    '/_main/vocabulary/summary': {
+      id: '/_main/vocabulary/summary'
+      path: '/vocabulary/summary'
+      fullPath: '/vocabulary/summary'
+      preLoaderRoute: typeof MainVocabularySummaryRouteImport
+      parentRoute: typeof MainRoute
+    }
   }
 }
 
+interface MainRouteChildren {
+  MainVocabularySummaryRoute: typeof MainVocabularySummaryRoute
+  MainVocabularyIndexRoute: typeof MainVocabularyIndexRoute
+}
+
+const MainRouteChildren: MainRouteChildren = {
+  MainVocabularySummaryRoute: MainVocabularySummaryRoute,
+  MainVocabularyIndexRoute: MainVocabularyIndexRoute,
+}
+
+const MainRouteWithChildren = MainRoute._addFileChildren(MainRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  MainRoute: MainRouteWithChildren,
   AboutRoute: AboutRoute,
-};
+}
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>();
+  ._addFileTypes<FileRouteTypes>()
