@@ -69,7 +69,7 @@ export default function VocabularyPlay() {
       } else {
         setCurrentIndex(nextIndex);
       }
-    }, 1000);
+    }, 800);
   };
 
   const { offset, onTouchStart, onTouchMove, onTouchEnd } = useSwipeGesture({
